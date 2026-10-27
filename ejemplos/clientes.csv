@@ -1,0 +1,11 @@
+empresa,dominio,contacto,correo,estado,limite_credito_mxn,ultima_compra
+Distribuidora Norte,distnorte.example,Ana Ruiz,ana@distnorte.example,cliente,250000,2026-09-14
+Café La Juárez,cafelajuarez.example,Luis Pérez,luis@cafelajuarez.example,cliente,40000,2026-10-02
+Muebles Roble,mueblesroble.example,Carla Gómez,carla@mueblesroble.example,cliente,120000,2026-08-21
+Logística Sur,logsur.example,Diego Torres,diego@logsur.example,prospecto,,
+Clínica Sonríe,clinicasonrie.example,María López,maria@clinicasonrie.example,cliente,60000,2026-07-30
+Panadería La Espiga,laespiga.example,Jorge Díaz,jorge@laespiga.example,prospecto,,
+Grupo Vega Seguros,gvega.example,Sofía Vega,sofia@gvega.example,cliente,500000,2026-10-11
+Taller Ruiz,tallerruiz.example,Pedro Ruiz,pedro@tallerruiz.example,suspendido,0,2026-03-05
+Florería Bella,floreriabella.example,Lucía Ramos,lucia@floreriabella.example,cliente,25000,2026-09-28
+Agencia Norte,agencianorte.example,Raúl Castro,raul@agencianorte.example,prospecto,,
