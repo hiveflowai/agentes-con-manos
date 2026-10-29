@@ -2,44 +2,57 @@
 
 **MCP, memoria y human-in-the-loop, construido en vivo.** Sesión técnica de **Mexico Tech Week 2026** (90 min con preguntas) con Jonathan Olvera, fundador de [Hiveflow](https://hiveflow.ai).
 
-> **MCP son las manos del agente** (sus herramientas: hoy Google Sheets; mañana Airtable o tu ERP). **Hiveflow decide qué puede tocar cada mano**, guarda su memoria y le pone frenos.
+> **Tu Claude es el arquitecto; Hiveflow es donde el agente vive.** Por MCP, Claude crea y opera el agente; Hiveflow le da herramientas con permisos, memoria por proceso y frenos humanos.
 
 > Muchos agentes funcionan en el demo y se rompen en producción. Para que funcionen de verdad necesitan tres cosas: **herramientas confiables**, **memoria por proceso** y **un humano en el punto correcto**.
 
 ## Lo que construimos
 
 ```
-💬 Chat (QR)  →  🧠 Agente (function calling)  →  🙋 ¿duda? Inbox · celular  →  📇 CRM
-                   │ manos por MCP:                       └→ 💬 respuesta al cliente
-                   └─ 📊 Google Sheets «Clientes» (solo leer)
+💬 Chat (link y QR)  →  🧠 Agente (function calling)  →  🙋 ¿duda? Inbox · celular  →  📇 CRM
+                          │ herramientas:                     └→ 💬 respuesta al cliente
+                          ├─ 🗄️ tabla «clientes» (solo consultar)
+                          └─ 📇 tabla «leads»: su memoria (solo consultar)
           memoria por proceso · bitácora por acción · costo por nodo · cualquier modelo
 ```
 
-Un agente como los de WhatsApp, pero con chat público (link y QR): los clientes le piden una cotización, el agente conversa (pide nombre, empresa y correo sin repetir preguntas), **lee tu Google Sheet de clientes por MCP**, decide con un LLM si es cliente nuevo, existente o dudoso, le contesta en el chat y lo registra en el CRM. Si es dudoso, **se detiene y pide aprobación** antes de escribir.
+Un agente como los de WhatsApp, pero con chat público: los clientes le piden una cotización, el agente conversa (pide nombre, empresa y correo sin repetir preguntas), consulta la tabla de clientes, decide con un LLM si es cliente nuevo, existente o dudoso, le contesta en el chat y lo registra en el CRM. Si es dudoso, **se detiene y pide aprobación** antes de escribir. Todo vive en Hiveflow: el flujo crea solo sus tablas (10 clientes inventados) con el primer mensaje.
 
-## 1. Prepara tu hoja de clientes
+## Hazlo tú (15 minutos)
 
-Crea un Google Sheet con una pestaña **«Clientes»** y pega [ejemplos/clientes.csv](ejemplos/clientes.csv) (Archivo → Importar). Son 10 clientes inventados con su estado (`cliente`, `prospecto`, `suspendido`) y su límite de crédito. Copia el **ID de la hoja** (lo que va entre `/d/` y `/edit` en la URL).
+### 1 · Crea tu cuenta
+[app.hiveflow.ai/signup](https://app.hiveflow.ai/signup) — trae 5 USD de crédito para usarlo hoy.
 
-## 2. Los 6 pasos
+### 2 · Conecta tu Claude a Hiveflow (MCP)
+- **Claude (claude.ai o la app):** Personalizar → Conectores → Agregar conector personalizado → `https://mcp.hiveflow.ai` → inicia sesión y autoriza.
+- **Claude Code:** `claude mcp add --transport http hiveflow https://mcp.hiveflow.ai` y luego `/mcp` para autorizar.
+- **Cursor:** en `~/.cursor/mcp.json` → `{ "mcpServers": { "hiveflow": { "url": "https://mcp.hiveflow.ai" } } }`.
 
-### 01 · Conectar Google Sheets (MCP)
-Crea tu cuenta en [app.hiveflow.ai](https://app.hiveflow.ai/signup) → **Integraciones → Google Sheets** → inicia sesión con Google y autoriza. Es un servidor MCP: le da al agente herramientas como `get_sheet_data` (leer) y `update_cells` (escribir). Sin llaves ni contraseñas.
+Prueba: *«¿Qué herramientas tienes de Hiveflow?»*
 
-### 02 · El agente: Chat → Agente → Chat
-En el canvas: **Chat de entrada → Agente (LLM) → Chat de salida**, igual que un agente de WhatsApp. En el objetivo del agente pega [ejemplos/prompt-agente.md](ejemplos/prompt-agente.md) con el ID de tu hoja. Publica el chat: el nodo te da el link público (conviértelo en QR).
+### 3 · Pídele a tu Claude que cree el agente
+Copia y pega:
 
-### 03 · Manos: herramientas y permisos
-Conecta el nodo **Google Sheets (MCP)** al punto verde del agente y abre sus permisos: **`get_sheet_data` = permitir; `update_cells` y las demás escrituras = denegar**. El modelo no puede tocar nada que no esté permitido, y eso no lo decide el modelo: lo decide Hiveflow.
+> Lee https://raw.githubusercontent.com/hiveflowai/agentes-con-manos/main/ejemplos/flujo-agente.json. Con Hiveflow, crea ese flujo con create_flow usando sus nodes y edges tal cual, pero antes reemplaza TOKEN_UNICO (en publicToken y en publicUrl) por 14 letras minúsculas y números al azar. Después actívalo con set_flow_state y dame el link del flujo y el link de mi chat: https://app.hiveflow.ai/public/chat/<el token que pusiste>.
 
-### 04 · Memoria
-Da tus datos de uno en uno en el chat: nunca vuelve a preguntar lo que ya dijiste. Abre el chat en otro celular y di que eres la misma persona: te reconoce por su CRM. Una conversación nunca ve los datos de otra. La memoria es **por proceso** y **aislada por cliente**.
+El flujo completo está en [ejemplos/flujo-agente.json](ejemplos/flujo-agente.json). Si tu Claude no puede abrir links, pégale el contenido del archivo en lugar del link.
 
-### 05 · Frenos (human-in-the-loop)
-Escribe como un cliente dudoso (dices ser de una empresa de la hoja con un correo de otro dominio, o pides más de su crédito). El agente te contesta «en revisión» y el flujo se pausa y te avisa en el Inbox de Hiveflow y en el celular. Apruébala desde la app o el celular: el lead entra al CRM. Si la rechazas, no se escribe nada.
+### 4 · Abre tu chat y pídele una cotización
+Abre el link de tu chat (en el celular o en la compu). Di que eres de una empresa de [ejemplos/clientes.csv](ejemplos/clientes.csv), por ejemplo «Soy Ana Ruiz de Distribuidora Norte, ana@distnorte.example, quiero 40 sillas». Revisa en Hiveflow → **Datos → leads**: ahí quedó registrada.
 
-### 06 · Romperlo
-En el nodo Google Sheets cambia `get_sheet_data` a «denegar» y manda otro mensaje. En la vista de ejecuciones de Hiveflow: el agente ya no puede leer la hoja y lo dice; nada se escribió a ciegas. Regresa el permiso y reintenta.
+## Lo que pasa por dentro
+
+### Manos: herramientas y permisos
+El agente tiene dos herramientas: **consultar_clientes** y **consultar_leads**. Guardar, actualizar y borrar están **denegados**: el modelo no puede tocar nada que no esté permitido, y eso no lo decide el modelo: lo decide Hiveflow. Lo que se escribe en el CRM lo escriben los nodos del flujo, no el modelo.
+
+### Memoria
+Da tus datos de uno en uno: nunca vuelve a preguntar lo que ya dijiste (historial del chat). Abre el chat en otro celular y di que eres la misma persona: te reconoce por su CRM. Una conversación nunca ve los datos de otra.
+
+### Frenos (human-in-the-loop)
+Escribe como un cliente dudoso (dices ser de una empresa de la hoja con un correo de otro dominio, o pides más de su crédito). El agente te contesta «en revisión» y el flujo se pausa y te avisa en el Inbox de Hiveflow y en el celular. Apruébala desde la app o el celular: el lead entra al CRM. Si la rechazas, el flujo se detiene y no se escribe nada.
+
+### Romperlo
+En la herramienta «Clientes» del agente cambia `consultar` a «denegar» y manda otro mensaje. En la vista de ejecuciones de Hiveflow: el agente ya no puede consultar y lo dice; nada se escribió a ciegas. Regresa el permiso y reintenta.
 
 ## 3. Operarlo
 
@@ -69,7 +82,7 @@ En el nodo Google Sheets cambia `get_sheet_data` a «denegar» y manda otro mens
 
 ## Datos de prueba
 
-[ejemplos/clientes.csv](ejemplos/clientes.csv): 10 clientes inventados para tu pestaña «Clientes» de Google Sheets.
+[ejemplos/clientes.csv](ejemplos/clientes.csv): los 10 clientes inventados que el flujo carga solo en tu tabla «clientes».
 
 ## Enlaces
 
