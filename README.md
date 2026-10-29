@@ -1,17 +1,20 @@
 # Agentes con manos
 
-**MCP, memoria y human-in-the-loop, construido en vivo.** Sesión técnica de **Mexico Tech Week 2026** con Jonathan Olvera, fundador de [Hiveflow](https://hiveflow.ai).
+**MCP, memoria y human-in-the-loop, construido en vivo.** Sesión técnica de **Mexico Tech Week 2026** (90 min con preguntas) con Jonathan Olvera, fundador de [Hiveflow](https://hiveflow.ai).
+
+> Claude o Cursor son el control remoto. **Hiveflow es donde el agente vive, trabaja y rinde cuentas.** MCP es la puerta.
 
 > Muchos agentes funcionan en el demo y se rompen en producción. Para que funcionen de verdad necesitan tres cosas: **herramientas confiables**, **memoria por proceso** y **un humano en el punto correcto**.
 
 ## Lo que construimos
 
 ```
-💬 Chat  →  🗄️ Tabla de clientes  →  🧠 LLM decide (function calling)  →  🙋 ¿duda? aprobación  →  📇 CRM
+📨 Correo (dirección propia)  →  🗄️ Hoja de clientes (Datos)  →  🧠 Agente decide (function calling)  →  🙋 ¿duda? Inbox · celular  →  📇 CRM
+                                            todo dentro de Hiveflow
                          memoria por proceso · bitácora por acción · costo por nodo · cualquier modelo
 ```
 
-Un agente que atiende un chat público donde los clientes piden una cotización, consulta la tabla de clientes, decide con un LLM si es cliente nuevo, existente o dudoso, y lo registra en un CRM. Si es dudoso, **se detiene y pide aprobación** antes de escribir.
+Un agente de Hiveflow con su propio correo: los clientes le escriben pidiendo una cotización, consulta la hoja de clientes en Datos, decide con un LLM si es cliente nuevo, existente o dudoso, y lo registra en el CRM. No usa Gmail ni Google Sheets: el correo y la hoja viven en Hiveflow. Si es dudoso, **se detiene y pide aprobación** antes de escribir.
 
 ## 1. Conecta tu Claude, Cursor o Claude Code a Hiveflow (MCP)
 
@@ -44,18 +47,18 @@ Lo de arriba. Revisa que el modelo vea las herramientas de Hiveflow (crear y cor
 
 ### 02 · Pedir el flujo
 
-> Con Hiveflow crea el flujo «Cotizaciones por chat»: un chat público donde los clientes piden una cotización; un agente LLM con memoria consulta mi tabla «Clientes» de Hiveflow, decide si es cliente nuevo, existente o dudoso, y lo registra en un CRM. Si es dudoso, que pida aprobación antes de escribir.
+> Con Hiveflow crea el flujo «Cotizaciones por correo»: un disparador de correo de Hiveflow con su propia dirección; un agente LLM con memoria que consulta mi tabla «Clientes» en Datos, decide si es cliente nuevo, existente o dudoso y lo registra en el CRM de Hiveflow. Si es dudoso, que pida aprobación en el Inbox antes de escribir.
 
-El modelo arma nodos y conexiones por MCP y te devuelve el link del flujo. Ábrelo en la app y copia el link público del chat: ese es el que compartes (o conviertes en QR).
+Hiveflow arma los nodos y las conexiones y te devuelve el link del flujo. Ábrelo en la app: en el disparador está la dirección de correo del agente (`…@in.hiveflow.ai`).
 
 ### 03 · Manos: herramientas y permisos
 En el nodo LLM: function calling, la lista de herramientas (tabla «Clientes», CRM) y los permisos por herramienta. Regla de la sesión: **leer = permitir, escribir = preguntar**. El modelo no puede tocar nada que no esté en la lista.
 
 ### 04 · Memoria
-Escribe dos mensajes en la misma conversación del chat: el segundo no vuelve a preguntar lo que ya sabe. Abre el chat en otro celular: esa conversación no ve los datos de la primera. La memoria es **por proceso** y **aislada por cliente**: un cliente nunca ve datos de otro.
+Manda dos correos desde la misma cuenta: el segundo no vuelve a preguntar lo que ya sabe. Manda uno desde otra cuenta: no ve los datos del primero. La memoria es **por proceso** y **aislada por cliente**: un cliente nunca ve datos de otro.
 
 ### 05 · Frenos (human-in-the-loop)
-Escribe como un cliente dudoso (una empresa que no está en la tabla, un monto raro). El flujo se pausa y te avisa (Inbox, celular). Desde tu Claude:
+Manda un correo dudoso (una empresa que no está en la hoja, un monto raro). El flujo se pausa y te avisa en el Inbox de Hiveflow y en el celular. Apruébala desde la app, o desde tu Claude por MCP:
 
 > ¿Qué aprobaciones tengo pendientes?
 
@@ -64,13 +67,13 @@ Escribe como un cliente dudoso (una empresa que no está en la tabla, un monto r
 El flujo continúa con la acción que pidió.
 
 ### 06 · Romperlo
-Desconecta la tabla «Clientes» del agente (o quítale el permiso) y manda otro mensaje. Revisa en qué nodo falló, con qué error, qué sí quedó escrito y cómo reintentarlo.
+Desconecta la tabla «Clientes» del agente (o quítale el permiso) y manda otro correo. En la vista de ejecuciones de Hiveflow revisa en qué nodo falló, con qué error, qué sí quedó escrito y cómo reintentarlo.
 
 ## 3. Operarlo
 
-- **Bitácora:** pregúntale a tu Claude *«Muéstrame la bitácora del agente»*: cada acción, la decisión de política (permitida, preguntada, denegada) y quién aprobó.
+- **Terminal:** con Remote Control de la CLI de Hiveflow ves y operas el agente en vivo; pausar o detener es un comando.
+- **Bitácora:** en Hiveflow, cada acción con su decisión de política (permitida, preguntada, denegada) y quién aprobó. También se la puedes pedir a tu Claude por MCP: *«Muéstrame la bitácora del agente»*.
 - **Costos:** tokens y costo por nodo y por proceso en Analítica.
-- **Terminal:** con Remote Control operas el agente desde la terminal.
 
 ## El patrón, con cualquier modelo
 
