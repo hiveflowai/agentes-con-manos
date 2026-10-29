@@ -36,13 +36,7 @@ Conecta el nodo **Google Sheets (MCP)** al punto verde del agente y abre sus per
 Da tus datos de uno en uno en el chat: nunca vuelve a preguntar lo que ya dijiste. Abre el chat en otro celular y di que eres la misma persona: te reconoce por su CRM. Una conversación nunca ve los datos de otra. La memoria es **por proceso** y **aislada por cliente**.
 
 ### 05 · Frenos (human-in-the-loop)
-Escribe como un cliente dudoso (dices ser de una empresa de la hoja con un correo de otro dominio, o pides más de su crédito). El agente te contesta «en revisión» y el flujo se pausa y te avisa en el Inbox de Hiveflow y en el celular. Apruébala desde la app, o desde tu Claude por MCP:
-
-> ¿Qué aprobaciones tengo pendientes?
-
-> Apruébala.
-
-El flujo continúa con la acción que pidió.
+Escribe como un cliente dudoso (dices ser de una empresa de la hoja con un correo de otro dominio, o pides más de su crédito). El agente te contesta «en revisión» y el flujo se pausa y te avisa en el Inbox de Hiveflow y en el celular. Apruébala desde la app o el celular: el lead entra al CRM. Si la rechazas, no se escribe nada.
 
 ### 06 · Romperlo
 En el nodo Google Sheets cambia `get_sheet_data` a «denegar» y manda otro mensaje. En la vista de ejecuciones de Hiveflow: el agente ya no puede leer la hoja y lo dice; nada se escribió a ciegas. Regresa el permiso y reintenta.
