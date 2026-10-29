@@ -7,11 +7,11 @@
 ## Lo que construimos
 
 ```
-📨 Correo  →  📊 Sheets (MCP)  →  🧠 LLM decide (function calling)  →  🙋 ¿duda? aprobación  →  📇 CRM
+💬 Chat  →  🗄️ Tabla de clientes  →  🧠 LLM decide (function calling)  →  🙋 ¿duda? aprobación  →  📇 CRM
                          memoria por proceso · bitácora por acción · costo por nodo · cualquier modelo
 ```
 
-Un agente que lee un correo de solicitud, consulta la hoja de clientes, decide con un LLM si es cliente nuevo, existente o dudoso, y lo registra en un CRM. Si es dudoso, **se detiene y pide aprobación** antes de escribir.
+Un agente que atiende un chat público donde los clientes piden una cotización, consulta la tabla de clientes, decide con un LLM si es cliente nuevo, existente o dudoso, y lo registra en un CRM. Si es dudoso, **se detiene y pide aprobación** antes de escribir.
 
 ## 1. Conecta tu Claude, Cursor o Claude Code a Hiveflow (MCP)
 
@@ -44,18 +44,18 @@ Lo de arriba. Revisa que el modelo vea las herramientas de Hiveflow (crear y cor
 
 ### 02 · Pedir el flujo
 
-> Con Hiveflow crea el flujo «Leads por correo»: cuando llegue un correo con «cotización» en el asunto, lee mi hoja «Clientes» de Google Sheets, decide con un LLM si es cliente nuevo, existente o dudoso, y regístralo en un CRM. Si es dudoso, que pida aprobación antes de escribir.
+> Con Hiveflow crea el flujo «Cotizaciones por chat»: un chat público donde los clientes piden una cotización; un agente LLM con memoria consulta mi tabla «Clientes» de Hiveflow, decide si es cliente nuevo, existente o dudoso, y lo registra en un CRM. Si es dudoso, que pida aprobación antes de escribir.
 
-El modelo arma nodos y conexiones por MCP y te devuelve el link del flujo. Ábrelo en la app.
+El modelo arma nodos y conexiones por MCP y te devuelve el link del flujo. Ábrelo en la app y copia el link público del chat: ese es el que compartes (o conviertes en QR).
 
 ### 03 · Manos: herramientas y permisos
-En el nodo LLM: function calling, la lista de herramientas (Sheets por MCP, CRM) y los permisos por herramienta. Regla de la sesión: **leer = permitir, escribir = preguntar**. El modelo no puede tocar nada que no esté en la lista.
+En el nodo LLM: function calling, la lista de herramientas (tabla «Clientes», CRM) y los permisos por herramienta. Regla de la sesión: **leer = permitir, escribir = preguntar**. El modelo no puede tocar nada que no esté en la lista.
 
 ### 04 · Memoria
-Manda dos correos del mismo remitente: el segundo no vuelve a preguntar lo que ya sabe. La memoria es **por proceso** y **aislada por cliente**: un cliente nunca ve datos de otro.
+Escribe dos mensajes en la misma conversación del chat: el segundo no vuelve a preguntar lo que ya sabe. Abre el chat en otro celular: esa conversación no ve los datos de la primera. La memoria es **por proceso** y **aislada por cliente**: un cliente nunca ve datos de otro.
 
 ### 05 · Frenos (human-in-the-loop)
-Manda un correo dudoso. El flujo se pausa y te avisa (Inbox, celular). Desde tu Claude:
+Escribe como un cliente dudoso (una empresa que no está en la tabla, un monto raro). El flujo se pausa y te avisa (Inbox, celular). Desde tu Claude:
 
 > ¿Qué aprobaciones tengo pendientes?
 
@@ -64,7 +64,7 @@ Manda un correo dudoso. El flujo se pausa y te avisa (Inbox, celular). Desde tu 
 El flujo continúa con la acción que pidió.
 
 ### 06 · Romperlo
-Renombra la pestaña de la hoja o quita el permiso de Sheets y manda otro correo. Revisa en qué nodo falló, con qué error, qué sí quedó escrito y cómo reintentarlo.
+Desconecta la tabla «Clientes» del agente (o quítale el permiso) y manda otro mensaje. Revisa en qué nodo falló, con qué error, qué sí quedó escrito y cómo reintentarlo.
 
 ## 3. Operarlo
 
@@ -94,7 +94,7 @@ Renombra la pestaña de la hoja o quita el permiso de Sheets y manda otro correo
 
 ## Datos de prueba
 
-Usa [ejemplos/clientes.csv](ejemplos/clientes.csv) como tu hoja «Clientes» (datos inventados).
+Crea en Hiveflow (Datos) la tabla «Clientes» con las filas de [ejemplos/clientes.csv](ejemplos/clientes.csv) (datos inventados) y conéctala al nodo LLM como herramienta: el agente puede consultarla, y con permiso, escribir en ella.
 
 ## Enlaces
 
