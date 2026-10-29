@@ -9,12 +9,12 @@
 ## Lo que construimos
 
 ```
-📨 Correo (dirección propia)  →  🗄️ Hoja de clientes (Datos)  →  🧠 Agente decide (function calling)  →  🙋 ¿duda? Inbox · celular  →  📇 CRM
+💬 Chat público (QR)  →  🗄️ Hoja de clientes (Datos)  →  🧠 Agente decide (function calling)  →  🙋 ¿duda? Inbox · celular  →  📇 CRM
                                             todo dentro de Hiveflow
                          memoria por proceso · bitácora por acción · costo por nodo · cualquier modelo
 ```
 
-Un agente de Hiveflow con su propio correo: los clientes le escriben pidiendo una cotización, consulta la hoja de clientes en Datos, decide con un LLM si es cliente nuevo, existente o dudoso, y lo registra en el CRM. No usa Gmail ni Google Sheets: el correo y la hoja viven en Hiveflow. Si es dudoso, **se detiene y pide aprobación** antes de escribir.
+Un agente de Hiveflow con su propio chat público: los clientes le piden una cotización, el agente conversa (pide nombre, empresa y correo sin repetir preguntas), consulta la hoja de clientes en Datos, decide con un LLM si es cliente nuevo, existente o dudoso, le contesta en el chat y lo registra en el CRM. No depende de Google: el chat, la hoja y el CRM viven en Hiveflow. Si es dudoso, **se detiene y pide aprobación** antes de escribir.
 
 ## 1. Conecta tu Claude, Cursor o Claude Code a Hiveflow (MCP)
 
@@ -47,18 +47,18 @@ Lo de arriba. Revisa que el modelo vea las herramientas de Hiveflow (crear y cor
 
 ### 02 · Pedir el flujo
 
-> Con Hiveflow crea el flujo «Cotizaciones por correo»: un disparador de correo de Hiveflow con su propia dirección; un agente LLM con memoria que consulta mi tabla «Clientes» en Datos, decide si es cliente nuevo, existente o dudoso y lo registra en el CRM de Hiveflow. Si es dudoso, que pida aprobación en el Inbox antes de escribir.
+> Con Hiveflow crea el flujo «Cotizaciones por chat»: un chat público donde los clientes piden una cotización; un agente LLM que conversa, pide nombre, empresa y correo, consulta mi tabla «Clientes» en Datos, decide si es cliente nuevo, existente o dudoso y lo registra en el CRM de Hiveflow. Si es dudoso, que pida aprobación en el Inbox antes de escribir, y que siempre le conteste al cliente en el chat.
 
-Hiveflow arma los nodos y las conexiones y te devuelve el link del flujo. Ábrelo en la app: en el disparador está la dirección de correo del agente (`…@in.hiveflow.ai`).
+Hiveflow arma los nodos y las conexiones y te devuelve el link del flujo. Ábrelo en la app y publica el chat: el nodo de chat te da el link público (y lo puedes convertir en QR).
 
 ### 03 · Manos: herramientas y permisos
 En el nodo LLM: function calling, la lista de herramientas (tabla «Clientes», CRM) y los permisos por herramienta. Regla de la sesión: **leer = permitir, escribir = preguntar**. El modelo no puede tocar nada que no esté en la lista.
 
 ### 04 · Memoria
-Manda dos correos desde la misma cuenta: el segundo no vuelve a preguntar lo que ya sabe. Manda uno desde otra cuenta: no ve los datos del primero. La memoria es **por proceso** y **aislada por cliente**: un cliente nunca ve datos de otro.
+Da tus datos de uno en uno en el chat: nunca vuelve a preguntar lo que ya dijiste. Abre el chat en otro celular y di que eres la misma persona: te reconoce por su CRM. Una conversación nunca ve los datos de otra. La memoria es **por proceso** y **aislada por cliente**: un cliente nunca ve datos de otro.
 
 ### 05 · Frenos (human-in-the-loop)
-Manda un correo dudoso (una empresa que no está en la hoja, un monto raro). El flujo se pausa y te avisa en el Inbox de Hiveflow y en el celular. Apruébala desde la app, o desde tu Claude por MCP:
+Escribe como un cliente dudoso (dices ser de una empresa de la hoja con un correo de otro dominio, o pides 60 % de descuento). El agente te contesta «en revisión» y el flujo se pausa y te avisa en el Inbox de Hiveflow y en el celular. Apruébala desde la app, o desde tu Claude por MCP:
 
 > ¿Qué aprobaciones tengo pendientes?
 
@@ -67,7 +67,7 @@ Manda un correo dudoso (una empresa que no está en la hoja, un monto raro). El 
 El flujo continúa con la acción que pidió.
 
 ### 06 · Romperlo
-Desconecta la tabla «Clientes» del agente (o quítale el permiso) y manda otro correo. En la vista de ejecuciones de Hiveflow revisa en qué nodo falló, con qué error, qué sí quedó escrito y cómo reintentarlo.
+Desconecta la tabla «Clientes» del agente (o quítale el permiso) y manda otro mensaje. En la vista de ejecuciones de Hiveflow revisa en qué nodo falló, con qué error, qué sí quedó escrito y cómo reintentarlo.
 
 ## 3. Operarlo
 
