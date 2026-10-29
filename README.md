@@ -2,63 +2,41 @@
 
 **MCP, memoria y human-in-the-loop, construido en vivo.** Sesión técnica de **Mexico Tech Week 2026** (90 min con preguntas) con Jonathan Olvera, fundador de [Hiveflow](https://hiveflow.ai).
 
-> Claude o Cursor son el control remoto. **Hiveflow es donde el agente vive, trabaja y rinde cuentas.** MCP es la puerta.
+> **MCP son las manos del agente** (sus herramientas: hoy Google Sheets; mañana Airtable o tu ERP). **Hiveflow decide qué puede tocar cada mano**, guarda su memoria y le pone frenos.
 
 > Muchos agentes funcionan en el demo y se rompen en producción. Para que funcionen de verdad necesitan tres cosas: **herramientas confiables**, **memoria por proceso** y **un humano en el punto correcto**.
 
 ## Lo que construimos
 
 ```
-💬 Chat público (QR)  →  🗄️ Hoja de clientes (Datos)  →  🧠 Agente decide (function calling)  →  🙋 ¿duda? Inbox · celular  →  📇 CRM
-                                            todo dentro de Hiveflow
-                         memoria por proceso · bitácora por acción · costo por nodo · cualquier modelo
+💬 Chat (QR)  →  🧠 Agente (function calling)  →  🙋 ¿duda? Inbox · celular  →  📇 CRM
+                   │ manos por MCP:                       └→ 💬 respuesta al cliente
+                   └─ 📊 Google Sheets «Clientes» (solo leer)
+          memoria por proceso · bitácora por acción · costo por nodo · cualquier modelo
 ```
 
-Un agente de Hiveflow con su propio chat público: los clientes le piden una cotización, el agente conversa (pide nombre, empresa y correo sin repetir preguntas), consulta la hoja de clientes en Datos, decide con un LLM si es cliente nuevo, existente o dudoso, le contesta en el chat y lo registra en el CRM. No depende de Google: el chat, la hoja y el CRM viven en Hiveflow. Si es dudoso, **se detiene y pide aprobación** antes de escribir.
+Un agente como los de WhatsApp, pero con chat público (link y QR): los clientes le piden una cotización, el agente conversa (pide nombre, empresa y correo sin repetir preguntas), **lee tu Google Sheet de clientes por MCP**, decide con un LLM si es cliente nuevo, existente o dudoso, le contesta en el chat y lo registra en el CRM. Si es dudoso, **se detiene y pide aprobación** antes de escribir.
 
-## 1. Conecta tu Claude, Cursor o Claude Code a Hiveflow (MCP)
+## 1. Prepara tu hoja de clientes
 
-Crea tu cuenta en [app.hiveflow.ai](https://app.hiveflow.ai/signup) y conecta el servidor MCP remoto `https://mcp.hiveflow.ai` (te pide autorizar con tu cuenta):
+Crea un Google Sheet con una pestaña **«Clientes»** y pega [ejemplos/clientes.csv](ejemplos/clientes.csv) (Archivo → Importar). Son 10 clientes inventados con su estado (`cliente`, `prospecto`, `suspendido`) y su límite de crédito. Copia el **ID de la hoja** (lo que va entre `/d/` y `/edit` en la URL).
 
-**Claude (claude.ai o la app):** Personalizar → Conectores → Agregar conector personalizado → `https://mcp.hiveflow.ai`.
+## 2. Los 6 pasos
 
-**Claude Code:**
+### 01 · Conectar Google Sheets (MCP)
+Crea tu cuenta en [app.hiveflow.ai](https://app.hiveflow.ai/signup) → **Integraciones → Google Sheets** → inicia sesión con Google y autoriza. Es un servidor MCP: le da al agente herramientas como `get_sheet_data` (leer) y `update_cells` (escribir). Sin llaves ni contraseñas.
 
-```bash
-claude mcp add --transport http hiveflow https://mcp.hiveflow.ai
-```
-
-**Cursor:** en `~/.cursor/mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "hiveflow": { "url": "https://mcp.hiveflow.ai" }
-  }
-}
-```
-
-Prueba: pregúntale *«¿Qué herramientas tienes de Hiveflow?»*.
-
-## 2. Los 6 pasos (con los prompts de la sesión)
-
-### 01 · Conectar
-Lo de arriba. Revisa que el modelo vea las herramientas de Hiveflow (crear y correr flujos, aprobaciones, bitácora, tableros).
-
-### 02 · Pedir el flujo
-
-> Con Hiveflow crea el flujo «Cotizaciones por chat»: un chat público donde los clientes piden una cotización; un agente LLM que conversa, pide nombre, empresa y correo, consulta mi tabla «Clientes» en Datos, decide si es cliente nuevo, existente o dudoso y lo registra en el CRM de Hiveflow. Si es dudoso, que pida aprobación en el Inbox antes de escribir, y que siempre le conteste al cliente en el chat.
-
-Hiveflow arma los nodos y las conexiones y te devuelve el link del flujo. Ábrelo en la app y publica el chat: el nodo de chat te da el link público (y lo puedes convertir en QR).
+### 02 · El agente: Chat → Agente → Chat
+En el canvas: **Chat de entrada → Agente (LLM) → Chat de salida**, igual que un agente de WhatsApp. En el objetivo del agente pega [ejemplos/prompt-agente.md](ejemplos/prompt-agente.md) con el ID de tu hoja. Publica el chat: el nodo te da el link público (conviértelo en QR).
 
 ### 03 · Manos: herramientas y permisos
-En el nodo LLM: function calling, la lista de herramientas (tabla «Clientes», CRM) y los permisos por herramienta. Regla de la sesión: **leer = permitir, escribir = preguntar**. El modelo no puede tocar nada que no esté en la lista.
+Conecta el nodo **Google Sheets (MCP)** al punto verde del agente y abre sus permisos: **`get_sheet_data` = permitir; `update_cells` y las demás escrituras = denegar**. El modelo no puede tocar nada que no esté permitido, y eso no lo decide el modelo: lo decide Hiveflow.
 
 ### 04 · Memoria
-Da tus datos de uno en uno en el chat: nunca vuelve a preguntar lo que ya dijiste. Abre el chat en otro celular y di que eres la misma persona: te reconoce por su CRM. Una conversación nunca ve los datos de otra. La memoria es **por proceso** y **aislada por cliente**: un cliente nunca ve datos de otro.
+Da tus datos de uno en uno en el chat: nunca vuelve a preguntar lo que ya dijiste. Abre el chat en otro celular y di que eres la misma persona: te reconoce por su CRM. Una conversación nunca ve los datos de otra. La memoria es **por proceso** y **aislada por cliente**.
 
 ### 05 · Frenos (human-in-the-loop)
-Escribe como un cliente dudoso (dices ser de una empresa de la hoja con un correo de otro dominio, o pides 60 % de descuento). El agente te contesta «en revisión» y el flujo se pausa y te avisa en el Inbox de Hiveflow y en el celular. Apruébala desde la app, o desde tu Claude por MCP:
+Escribe como un cliente dudoso (dices ser de una empresa de la hoja con un correo de otro dominio, o pides más de su crédito). El agente te contesta «en revisión» y el flujo se pausa y te avisa en el Inbox de Hiveflow y en el celular. Apruébala desde la app, o desde tu Claude por MCP:
 
 > ¿Qué aprobaciones tengo pendientes?
 
@@ -67,7 +45,7 @@ Escribe como un cliente dudoso (dices ser de una empresa de la hoja con un corre
 El flujo continúa con la acción que pidió.
 
 ### 06 · Romperlo
-Desconecta la tabla «Clientes» del agente (o quítale el permiso) y manda otro mensaje. En la vista de ejecuciones de Hiveflow revisa en qué nodo falló, con qué error, qué sí quedó escrito y cómo reintentarlo.
+En el nodo Google Sheets cambia `get_sheet_data` a «denegar» y manda otro mensaje. En la vista de ejecuciones de Hiveflow: el agente ya no puede leer la hoja y lo dice; nada se escribió a ciegas. Regresa el permiso y reintenta.
 
 ## 3. Operarlo
 
@@ -97,7 +75,7 @@ Desconecta la tabla «Clientes» del agente (o quítale el permiso) y manda otro
 
 ## Datos de prueba
 
-Crea en Hiveflow (Datos) la tabla «Clientes» con las filas de [ejemplos/clientes.csv](ejemplos/clientes.csv) (datos inventados) y conéctala al nodo LLM como herramienta: el agente puede consultarla, y con permiso, escribir en ella.
+[ejemplos/clientes.csv](ejemplos/clientes.csv): 10 clientes inventados para tu pestaña «Clientes» de Google Sheets.
 
 ## Enlaces
 
